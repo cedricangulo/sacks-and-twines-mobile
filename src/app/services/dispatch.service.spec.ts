@@ -28,7 +28,7 @@ describe('DispatchService', () => {
     expect(service.queue()).toEqual([]);
     const last = service.history()[service.history().length - 1];
     const byBatch = new Map(
-      last.items.map((i) => [i.batchId, i.quantityDeducted])
+      last.items.map((i) => [i.batchId, i.quantityDeducted]),
     );
     expect(byBatch.get('b11')).toBe(120);
     expect(byBatch.get('b12')).toBe(280);

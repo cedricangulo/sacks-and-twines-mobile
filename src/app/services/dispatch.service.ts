@@ -5,6 +5,7 @@ import { DispatchUom } from '../models/enums.model';
 import { Dispatch, DispatchItem } from '../models/dispatch.model';
 import { SEED_DISPATCHES } from '../models/sample-data';
 
+/** Thrown by {@link DispatchService.submit} when stock can't fulfill a line. */
 export class InsufficientStockError extends Error {
   constructor() {
     super('INSUFFICIENT_STOCK');
@@ -12,20 +13,37 @@ export class InsufficientStockError extends Error {
   }
 }
 
+/**
+ * Service layer that orchestrates dispatch business rules on top of
+ * {@link ProductService}. Owns the reactive queue + history (signals), and
+ * runs FIFO batch consumption with atomic insufficient-stock rejection.
+ */
 @Injectable({
   providedIn: 'root',
 })
 export class DispatchService {
   private readonly productService = inject(ProductService);
 
+  /** Items added by the user, not yet submitted. */
   readonly queue = signal<DispatchItem[]>([]);
+  /** Submitted dispatches; preseeded so the history page isn't empty. */
   readonly history = signal<Dispatch[]>(SEED_DISPATCHES);
 
+  /** Reactive sum of queued {@link DispatchItem.lineTotal}, shown in the queue badge. */
   readonly queueTotal = computed(() =>
-    this.queue().reduce((acc, item) => acc + item.lineTotal, 0)
+    this.queue().reduce((acc, item) => acc + item.lineTotal, 0),
   );
 
-  addToQueue(product: Product, dispatchUom: DispatchUom, dispatchQuantity: number): void {
+  /**
+   * Adds a line to the queue. `dispatchQuantity` is in the chosen `dispatchUom`;
+   * `unitCost` is forecast from the product's oldest active batch (FIFO-first),
+   * so the queue badge reflects a realistic running total before submit.
+   */
+  addToQueue(
+    product: Product,
+    dispatchUom: DispatchUom,
+    dispatchQuantity: number,
+  ): void {
     const unitCost = this.forecastUnitCost(product.id);
     const item: DispatchItem = {
       product,
@@ -39,14 +57,23 @@ export class DispatchService {
     this.queue.update((prev) => [...prev, item]);
   }
 
+  /** Removes the queued line at `index`. */
   removeFromQueue(index: number): void {
     this.queue.update((prev) => prev.filter((_, i) => i !== index));
   }
 
+  /** Empties the queue. */
   clearQueue(): void {
     this.queue.set([]);
   }
 
+  /**
+   * Validates and commits the current queue as one dispatch.
+   * Applies FIFO fulfillment; throws {@link InsufficientStockError} (nothing
+   * deducted, queue kept) if any line can't be fully satisfied. On success,
+   * deducts stock, appends to history, and clears the queue. `customerReference`
+   * is optional per dispatch rules.
+   */
   submit(customerReference?: string): void {
     const queueLines = this.queue();
     if (queueLines.length === 0) {
@@ -56,7 +83,10 @@ export class DispatchService {
     const items = this.planFulfillment(queueLines);
 
     for (const item of items) {
-      this.productService.applyBatchDeduction(item.batchId, item.quantityDeducted);
+      this.productService.applyBatchDeduction(
+        item.batchId,
+        item.quantityDeducted,
+      );
     }
 
     this.history.update((prev) => [
@@ -72,10 +102,14 @@ export class DispatchService {
     this.queue.set([]);
   }
 
+  /** Returns dispatches recorded today (the history view's default scope). */
   todayHistory(): Dispatch[] {
-    return this.history().filter((d) => this.isSameDay(d.createdAt, new Date()));
+    return this.history().filter((d) =>
+      this.isSameDay(d.createdAt, new Date()),
+    );
   }
 
+  /** Unit cost of the product's oldest active batch, used to estimate queue totals. */
   private forecastUnitCost(productId: string): number {
     const first = this.productService
       .getBatchesByProduct(productId)
@@ -83,11 +117,18 @@ export class DispatchService {
     return first?.unitCost ?? 0;
   }
 
+  /**
+   * Plans FIFO fulfillment for every queued line on a *simulated* stock map,
+   * so all lines validate before any real deduction (atomic rejection). Returns
+   * the concrete {@link DispatchItem} lines — one per consumed batch, oldest
+   * first — each carrying a `unitCost` snapshotted from that batch.
+   * Throws {@link InsufficientStockError} if any line remains unmet.
+   */
   private planFulfillment(queueLines: DispatchItem[]): DispatchItem[] {
     const remaining = new Map<string, number>();
-    for (const batch of this.productService.products().flatMap((p) =>
-      this.productService.getBatchesByProduct(p.id)
-    )) {
+    for (const batch of this.productService
+      .products()
+      .flatMap((p) => this.productService.getBatchesByProduct(p.id))) {
       remaining.set(batch.id, batch.quantityRemaining);
     }
 
@@ -130,6 +171,7 @@ export class DispatchService {
     return result;
   }
 
+  /** True when both dates fall on the same calendar day. */
   private isSameDay(a: Date, b: Date): boolean {
     return (
       a.getFullYear() === b.getFullYear() &&

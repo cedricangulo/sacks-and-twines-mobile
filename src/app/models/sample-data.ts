@@ -2,8 +2,14 @@ import { Product } from './product.model';
 import { Batch } from './batch.model';
 import { Dispatch, DispatchItem } from './dispatch.model';
 
+/** `new Date()` captured once for the preseed dispatch. */
 const today = (): Date => new Date();
 
+/**
+ * Current product catalog (post any preseed dispatch). Quantities reflect the
+ * *current* on-hand state, so batch `quantityRemaining` sums reconcile to each
+ * product's `currentQuantity`.
+ */
 export const PRODUCTS: Product[] = [
   {
     id: 'p1',
@@ -95,23 +101,172 @@ export const PRODUCTS: Product[] = [
   },
 ];
 
+/**
+ * Stock batches per product. Unique `createdAt` per batch makes FIFO ordering
+ * demonstrable (e.g. p2 drains the older batch first). Initial `quantityRemaining`
+ * sums to each product's `currentQuantity`.
+ */
 export const BATCHES: Batch[] = [
-  { id: 'b1', productId: 'p1', batchCode: 'BAT-20260601-0001', unitCost: 18, quantityReceived: 300, quantityRemaining: 120, status: 'active', createdAt: new Date('2026-06-01T00:00:00') },
-  { id: 'b2', productId: 'p1', batchCode: 'BAT-20260710-0002', unitCost: 19.5, quantityReceived: 500, quantityRemaining: 400, status: 'active', createdAt: new Date('2026-07-10T00:00:00') },
-  { id: 'b3', productId: 'p2', batchCode: 'BAT-20260520-0001', unitCost: 22, quantityReceived: 400, quantityRemaining: 80, status: 'active', createdAt: new Date('2026-05-20T00:00:00') },
-  { id: 'b4', productId: 'p2', batchCode: 'BAT-20260701-0002', unitCost: 23, quantityReceived: 600, quantityRemaining: 350, status: 'active', createdAt: new Date('2026-07-01T00:00:00') },
-  { id: 'b5', productId: 'p3', batchCode: 'BAT-20260615-0001', unitCost: 16, quantityReceived: 1000, quantityRemaining: 40, status: 'active', createdAt: new Date('2026-06-15T00:00:00') },
-  { id: 'b6', productId: 'p3', batchCode: 'BAT-20260725-0002', unitCost: 17, quantityReceived: 1000, quantityRemaining: 900, status: 'active', createdAt: new Date('2026-07-25T00:00:00') },
-  { id: 'b7', productId: 'p4', batchCode: 'BAT-20260605-0001', unitCost: 14, quantityReceived: 800, quantityRemaining: 250, status: 'active', createdAt: new Date('2026-06-05T00:00:00') },
-  { id: 'b8', productId: 'p4', batchCode: 'BAT-20260712-0002', unitCost: 15, quantityReceived: 800, quantityRemaining: 720, status: 'active', createdAt: new Date('2026-07-12T00:00:00') },
-  { id: 'b9', productId: 'p5', batchCode: 'BAT-20260622-0001', unitCost: 20, quantityReceived: 600, quantityRemaining: 90, status: 'active', createdAt: new Date('2026-06-22T00:00:00') },
-  { id: 'b10', productId: 'p5', batchCode: 'BAT-20260728-0002', unitCost: 21, quantityReceived: 600, quantityRemaining: 520, status: 'active', createdAt: new Date('2026-07-28T00:00:00') },
-  { id: 'b11', productId: 'p6', batchCode: 'BAT-20260601-0001', unitCost: 1.2, quantityReceived: 450, quantityRemaining: 120, status: 'active', createdAt: new Date('2026-06-01T00:00:00') },
-  { id: 'b12', productId: 'p6', batchCode: 'BAT-20260715-0002', unitCost: 1.35, quantityReceived: 600, quantityRemaining: 600, status: 'active', createdAt: new Date('2026-07-15T00:00:00') },
-  { id: 'b13', productId: 'p7', batchCode: 'BAT-20260610-0001', unitCost: 1.1, quantityReceived: 200, quantityRemaining: 40, status: 'active', createdAt: new Date('2026-06-10T00:00:00') },
-  { id: 'b14', productId: 'p7', batchCode: 'BAT-20260720-0002', unitCost: 1.25, quantityReceived: 250, quantityRemaining: 60, status: 'active', createdAt: new Date('2026-07-20T00:00:00') },
-  { id: 'b15', productId: 'p8', batchCode: 'BAT-20260618-0001', unitCost: 1, quantityReceived: 300, quantityRemaining: 200, status: 'active', createdAt: new Date('2026-06-18T00:00:00') },
-  { id: 'b16', productId: 'p8', batchCode: 'BAT-20260722-0002', unitCost: 1.15, quantityReceived: 400, quantityRemaining: 300, status: 'active', createdAt: new Date('2026-07-22T00:00:00') },
+  {
+    id: 'b1',
+    productId: 'p1',
+    batchCode: 'BAT-20260601-0001',
+    unitCost: 18,
+    quantityReceived: 300,
+    quantityRemaining: 120,
+    status: 'active',
+    createdAt: new Date('2026-06-01T00:00:00'),
+  },
+  {
+    id: 'b2',
+    productId: 'p1',
+    batchCode: 'BAT-20260710-0002',
+    unitCost: 19.5,
+    quantityReceived: 500,
+    quantityRemaining: 400,
+    status: 'active',
+    createdAt: new Date('2026-07-10T00:00:00'),
+  },
+  {
+    id: 'b3',
+    productId: 'p2',
+    batchCode: 'BAT-20260520-0001',
+    unitCost: 22,
+    quantityReceived: 400,
+    quantityRemaining: 80,
+    status: 'active',
+    createdAt: new Date('2026-05-20T00:00:00'),
+  },
+  {
+    id: 'b4',
+    productId: 'p2',
+    batchCode: 'BAT-20260701-0002',
+    unitCost: 23,
+    quantityReceived: 600,
+    quantityRemaining: 350,
+    status: 'active',
+    createdAt: new Date('2026-07-01T00:00:00'),
+  },
+  {
+    id: 'b5',
+    productId: 'p3',
+    batchCode: 'BAT-20260615-0001',
+    unitCost: 16,
+    quantityReceived: 1000,
+    quantityRemaining: 40,
+    status: 'active',
+    createdAt: new Date('2026-06-15T00:00:00'),
+  },
+  {
+    id: 'b6',
+    productId: 'p3',
+    batchCode: 'BAT-20260725-0002',
+    unitCost: 17,
+    quantityReceived: 1000,
+    quantityRemaining: 900,
+    status: 'active',
+    createdAt: new Date('2026-07-25T00:00:00'),
+  },
+  {
+    id: 'b7',
+    productId: 'p4',
+    batchCode: 'BAT-20260605-0001',
+    unitCost: 14,
+    quantityReceived: 800,
+    quantityRemaining: 250,
+    status: 'active',
+    createdAt: new Date('2026-06-05T00:00:00'),
+  },
+  {
+    id: 'b8',
+    productId: 'p4',
+    batchCode: 'BAT-20260712-0002',
+    unitCost: 15,
+    quantityReceived: 800,
+    quantityRemaining: 720,
+    status: 'active',
+    createdAt: new Date('2026-07-12T00:00:00'),
+  },
+  {
+    id: 'b9',
+    productId: 'p5',
+    batchCode: 'BAT-20260622-0001',
+    unitCost: 20,
+    quantityReceived: 600,
+    quantityRemaining: 90,
+    status: 'active',
+    createdAt: new Date('2026-06-22T00:00:00'),
+  },
+  {
+    id: 'b10',
+    productId: 'p5',
+    batchCode: 'BAT-20260728-0002',
+    unitCost: 21,
+    quantityReceived: 600,
+    quantityRemaining: 520,
+    status: 'active',
+    createdAt: new Date('2026-07-28T00:00:00'),
+  },
+  {
+    id: 'b11',
+    productId: 'p6',
+    batchCode: 'BAT-20260601-0001',
+    unitCost: 1.2,
+    quantityReceived: 450,
+    quantityRemaining: 120,
+    status: 'active',
+    createdAt: new Date('2026-06-01T00:00:00'),
+  },
+  {
+    id: 'b12',
+    productId: 'p6',
+    batchCode: 'BAT-20260715-0002',
+    unitCost: 1.35,
+    quantityReceived: 600,
+    quantityRemaining: 600,
+    status: 'active',
+    createdAt: new Date('2026-07-15T00:00:00'),
+  },
+  {
+    id: 'b13',
+    productId: 'p7',
+    batchCode: 'BAT-20260610-0001',
+    unitCost: 1.1,
+    quantityReceived: 200,
+    quantityRemaining: 40,
+    status: 'active',
+    createdAt: new Date('2026-06-10T00:00:00'),
+  },
+  {
+    id: 'b14',
+    productId: 'p7',
+    batchCode: 'BAT-20260720-0002',
+    unitCost: 1.25,
+    quantityReceived: 250,
+    quantityRemaining: 60,
+    status: 'active',
+    createdAt: new Date('2026-07-20T00:00:00'),
+  },
+  {
+    id: 'b15',
+    productId: 'p8',
+    batchCode: 'BAT-20260618-0001',
+    unitCost: 1,
+    quantityReceived: 300,
+    quantityRemaining: 200,
+    status: 'active',
+    createdAt: new Date('2026-06-18T00:00:00'),
+  },
+  {
+    id: 'b16',
+    productId: 'p8',
+    batchCode: 'BAT-20260722-0002',
+    unitCost: 1.15,
+    quantityReceived: 400,
+    quantityRemaining: 300,
+    status: 'active',
+    createdAt: new Date('2026-07-22T00:00:00'),
+  },
 ];
 
 const seedSackItem: DispatchItem = {
@@ -134,6 +289,7 @@ const seedTwineItem: DispatchItem = {
   lineTotal: 15,
 };
 
+/** One preseed dispatch from today so `dispatch-history` is non-empty on load. */
 export const SEED_DISPATCHES: Dispatch[] = [
   {
     id: 'd1',
