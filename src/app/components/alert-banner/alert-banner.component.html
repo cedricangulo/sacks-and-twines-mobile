@@ -1,0 +1,13 @@
+<!-- Tone drives both the color and the leading icon (danger vs warning) -->
+<ion-item
+  [color]="tone() === 'danger' ? 'danger' : 'warning'"
+  lines="none"
+  class="ion-margin"
+>
+  <ion-icon
+    slot="start"
+    [name]="tone() === 'danger' ? 'alert-circle' : 'warning-outline'"
+  >
+  </ion-icon>
+  <ion-label>{{ message() }}</ion-label>
+</ion-item>

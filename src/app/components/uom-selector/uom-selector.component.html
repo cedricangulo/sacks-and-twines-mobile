@@ -1,0 +1,8 @@
+<!-- Segment bound to the uom model; each shown UOM is valid for the product's category -->
+<ion-segment [value]="uom()" (ionChange)="onChange($event.detail.value)">
+  @for (option of availableUoms(); track option) {
+    <ion-segment-button [value]="option">
+      <ion-label>{{ option }}</ion-label>
+    </ion-segment-button>
+  }
+</ion-segment>

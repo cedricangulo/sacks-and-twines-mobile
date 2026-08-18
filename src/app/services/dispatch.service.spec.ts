@@ -3,6 +3,7 @@ import { DispatchService } from './dispatch.service';
 import { BATCHES, PRODUCTS } from '../models/sample-data';
 import { Batch } from '../models/batch.model';
 import { Product } from '../models/product.model';
+import { DispatchItem } from '../models/dispatch.model';
 
 describe('DispatchService', () => {
   let service: DispatchService;
@@ -10,6 +11,16 @@ describe('DispatchService', () => {
   const b11 = (): Batch => BATCHES.find((b) => b.id === 'b11') as Batch;
   const b12 = (): Batch => BATCHES.find((b) => b.id === 'b12') as Batch;
   const p6 = (): Product => PRODUCTS.find((p) => p.id === 'p6') as Product;
+
+  const queueItem = (product: Product, quantity: number): DispatchItem => ({
+    product,
+    batchId: '',
+    dispatchUom: 'meter',
+    dispatchQuantity: quantity,
+    quantityDeducted: quantity,
+    unitCost: service.forecastUnitCost(product.id),
+    lineTotal: service.forecastUnitCost(product.id) * quantity,
+  });
 
   beforeEach(() => {
     b11().quantityRemaining = 120;
@@ -22,7 +33,7 @@ describe('DispatchService', () => {
   });
 
   it('consumes the oldest active batch first (FIFO)', () => {
-    service.addToQueue(p6(), 'meter', 400);
+    service.addToQueue(queueItem(p6(), 400));
     service.submit();
 
     expect(service.queue()).toEqual([]);
@@ -39,7 +50,7 @@ describe('DispatchService', () => {
   });
 
   it('rejects an entire dispatch when stock is insufficient (atomic)', () => {
-    service.addToQueue(p6(), 'meter', 800);
+    service.addToQueue(queueItem(p6(), 800));
 
     expect(() => service.submit()).toThrowError('INSUFFICIENT_STOCK');
 
@@ -50,7 +61,7 @@ describe('DispatchService', () => {
   });
 
   it('tracks the queue total reactively', () => {
-    service.addToQueue(p6(), 'meter', 100);
+    service.addToQueue(queueItem(p6(), 100));
     expect(service.queueTotal()).toBeCloseTo(120, 5);
   });
 });

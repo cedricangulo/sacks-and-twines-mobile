@@ -1,0 +1,22 @@
+<!-- Batches rendered oldest-first (FIFO), read-only -->
+<ion-list inset="true">
+  @for (batch of batches(); track batch.id) {
+    <ion-item lines="inset">
+      <ion-label>
+        <strong>{{ batch.batchCode }}</strong>
+        <p>
+          Remaining {{ batch.quantityRemaining }} · ₱{{
+            batch.unitCost.toFixed(2)
+          }}/unit
+        </p>
+      </ion-label>
+      <!-- Active (blue) or depleted (muted) status badge -->
+      <ion-badge
+        slot="end"
+        [color]="batch.status === 'active' ? 'success' : 'medium'"
+      >
+        {{ batch.status }}
+      </ion-badge>
+    </ion-item>
+  }
+</ion-list>

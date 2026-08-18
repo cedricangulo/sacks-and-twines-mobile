@@ -1,7 +1,5 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { ProductService } from './product.service';
-import { Product } from '../models/product.model';
-import { DispatchUom } from '../models/enums.model';
 import { Dispatch, DispatchItem } from '../models/dispatch.model';
 import { SEED_DISPATCHES } from '../models/sample-data';
 
@@ -35,25 +33,11 @@ export class DispatchService {
   );
 
   /**
-   * Adds a line to the queue. `dispatchQuantity` is in the chosen `dispatchUom`;
-   * `unitCost` is forecast from the product's oldest active batch (FIFO-first),
-   * so the queue badge reflects a realistic running total before submit.
+   * Adds one prebuilt line item to the queue. Callers construct the
+   * {@link DispatchItem} (using {@link forecastUnitCost} for the line's cost
+   * estimate), then pass it here — keeps the service dumb about page inputs.
    */
-  addToQueue(
-    product: Product,
-    dispatchUom: DispatchUom,
-    dispatchQuantity: number,
-  ): void {
-    const unitCost = this.forecastUnitCost(product.id);
-    const item: DispatchItem = {
-      product,
-      batchId: '',
-      dispatchUom,
-      dispatchQuantity,
-      quantityDeducted: dispatchQuantity,
-      unitCost,
-      lineTotal: unitCost * dispatchQuantity,
-    };
+  addToQueue(item: DispatchItem): void {
     this.queue.update((prev) => [...prev, item]);
   }
 
@@ -80,7 +64,7 @@ export class DispatchService {
       return;
     }
 
-    const items = this.planFulfillment(queueLines);
+    const items = this.fulfill(queueLines);
 
     for (const item of items) {
       this.productService.applyBatchDeduction(
@@ -110,7 +94,7 @@ export class DispatchService {
   }
 
   /** Unit cost of the product's oldest active batch, used to estimate queue totals. */
-  private forecastUnitCost(productId: string): number {
+  forecastUnitCost(productId: string): number {
     const first = this.productService
       .getBatchesByProduct(productId)
       .find((b) => b.status === 'active' && b.quantityRemaining > 0);
@@ -124,7 +108,7 @@ export class DispatchService {
    * first — each carrying a `unitCost` snapshotted from that batch.
    * Throws {@link InsufficientStockError} if any line remains unmet.
    */
-  private planFulfillment(queueLines: DispatchItem[]): DispatchItem[] {
+  private fulfill(queueLines: DispatchItem[]): DispatchItem[] {
     const remaining = new Map<string, number>();
     for (const batch of this.productService
       .products()
