@@ -1,0 +1,145 @@
+import { Product } from './product.model';
+import { Batch } from './batch.model';
+import { Dispatch, DispatchItem } from './dispatch.model';
+
+const today = (): Date => new Date();
+
+export const PRODUCTS: Product[] = [
+  {
+    id: 'p1',
+    skuCode: 'SACK-LAM-25',
+    name: 'Laminated Sack (25kg)',
+    category: 'sacks',
+    baseUom: 'piece',
+    currentQuantity: 520,
+    totalAssetValue: 9960,
+    lowStockThreshold: 100,
+    status: 'active',
+  },
+  {
+    id: 'p2',
+    skuCode: 'SACK-MIX-50',
+    name: 'Assorted Sack (50kg)',
+    category: 'sacks',
+    baseUom: 'piece',
+    currentQuantity: 430,
+    totalAssetValue: 9810,
+    lowStockThreshold: 100,
+    status: 'active',
+  },
+  {
+    id: 'p3',
+    skuCode: 'SACK-WPP-50',
+    name: 'Woven Polypropylene Sack (50kg)',
+    category: 'sacks',
+    baseUom: 'piece',
+    currentQuantity: 940,
+    totalAssetValue: 15940,
+    lowStockThreshold: 50,
+    status: 'active',
+  },
+  {
+    id: 'p4',
+    skuCode: 'SACK-SND-50',
+    name: 'Sand bag (50kg)',
+    category: 'sacks',
+    baseUom: 'piece',
+    currentQuantity: 970,
+    totalAssetValue: 14300,
+    lowStockThreshold: 200,
+    status: 'active',
+  },
+  {
+    id: 'p5',
+    skuCode: 'SACK-RED-50',
+    name: 'Red bag (50kg)',
+    category: 'sacks',
+    baseUom: 'piece',
+    currentQuantity: 610,
+    totalAssetValue: 12720,
+    lowStockThreshold: 100,
+    status: 'active',
+  },
+  {
+    id: 'p6',
+    skuCode: 'TWNE-SEW',
+    name: 'Sewing Twine',
+    category: 'twines',
+    baseUom: 'meter',
+    currentQuantity: 720,
+    totalAssetValue: 954,
+    lowStockThreshold: 200,
+    status: 'active',
+  },
+  {
+    id: 'p7',
+    skuCode: 'TWNE-BAN',
+    name: 'Banana Twine',
+    category: 'twines',
+    baseUom: 'meter',
+    currentQuantity: 100,
+    totalAssetValue: 119,
+    lowStockThreshold: 100,
+    status: 'active',
+  },
+  {
+    id: 'p8',
+    skuCode: 'TWNE-TWS',
+    name: 'Twist Twine',
+    category: 'twines',
+    baseUom: 'meter',
+    currentQuantity: 500,
+    totalAssetValue: 545,
+    lowStockThreshold: 100,
+    status: 'active',
+  },
+];
+
+export const BATCHES: Batch[] = [
+  { id: 'b1', productId: 'p1', batchCode: 'BAT-20260601-0001', unitCost: 18, quantityReceived: 300, quantityRemaining: 120, status: 'active', createdAt: new Date('2026-06-01T00:00:00') },
+  { id: 'b2', productId: 'p1', batchCode: 'BAT-20260710-0002', unitCost: 19.5, quantityReceived: 500, quantityRemaining: 400, status: 'active', createdAt: new Date('2026-07-10T00:00:00') },
+  { id: 'b3', productId: 'p2', batchCode: 'BAT-20260520-0001', unitCost: 22, quantityReceived: 400, quantityRemaining: 80, status: 'active', createdAt: new Date('2026-05-20T00:00:00') },
+  { id: 'b4', productId: 'p2', batchCode: 'BAT-20260701-0002', unitCost: 23, quantityReceived: 600, quantityRemaining: 350, status: 'active', createdAt: new Date('2026-07-01T00:00:00') },
+  { id: 'b5', productId: 'p3', batchCode: 'BAT-20260615-0001', unitCost: 16, quantityReceived: 1000, quantityRemaining: 40, status: 'active', createdAt: new Date('2026-06-15T00:00:00') },
+  { id: 'b6', productId: 'p3', batchCode: 'BAT-20260725-0002', unitCost: 17, quantityReceived: 1000, quantityRemaining: 900, status: 'active', createdAt: new Date('2026-07-25T00:00:00') },
+  { id: 'b7', productId: 'p4', batchCode: 'BAT-20260605-0001', unitCost: 14, quantityReceived: 800, quantityRemaining: 250, status: 'active', createdAt: new Date('2026-06-05T00:00:00') },
+  { id: 'b8', productId: 'p4', batchCode: 'BAT-20260712-0002', unitCost: 15, quantityReceived: 800, quantityRemaining: 720, status: 'active', createdAt: new Date('2026-07-12T00:00:00') },
+  { id: 'b9', productId: 'p5', batchCode: 'BAT-20260622-0001', unitCost: 20, quantityReceived: 600, quantityRemaining: 90, status: 'active', createdAt: new Date('2026-06-22T00:00:00') },
+  { id: 'b10', productId: 'p5', batchCode: 'BAT-20260728-0002', unitCost: 21, quantityReceived: 600, quantityRemaining: 520, status: 'active', createdAt: new Date('2026-07-28T00:00:00') },
+  { id: 'b11', productId: 'p6', batchCode: 'BAT-20260601-0001', unitCost: 1.2, quantityReceived: 450, quantityRemaining: 120, status: 'active', createdAt: new Date('2026-06-01T00:00:00') },
+  { id: 'b12', productId: 'p6', batchCode: 'BAT-20260715-0002', unitCost: 1.35, quantityReceived: 600, quantityRemaining: 600, status: 'active', createdAt: new Date('2026-07-15T00:00:00') },
+  { id: 'b13', productId: 'p7', batchCode: 'BAT-20260610-0001', unitCost: 1.1, quantityReceived: 200, quantityRemaining: 40, status: 'active', createdAt: new Date('2026-06-10T00:00:00') },
+  { id: 'b14', productId: 'p7', batchCode: 'BAT-20260720-0002', unitCost: 1.25, quantityReceived: 250, quantityRemaining: 60, status: 'active', createdAt: new Date('2026-07-20T00:00:00') },
+  { id: 'b15', productId: 'p8', batchCode: 'BAT-20260618-0001', unitCost: 1, quantityReceived: 300, quantityRemaining: 200, status: 'active', createdAt: new Date('2026-06-18T00:00:00') },
+  { id: 'b16', productId: 'p8', batchCode: 'BAT-20260722-0002', unitCost: 1.15, quantityReceived: 400, quantityRemaining: 300, status: 'active', createdAt: new Date('2026-07-22T00:00:00') },
+];
+
+const seedSackItem: DispatchItem = {
+  product: PRODUCTS[0],
+  batchId: 'b1',
+  dispatchUom: 'piece',
+  dispatchQuantity: 50,
+  quantityDeducted: 50,
+  unitCost: 18,
+  lineTotal: 900,
+};
+
+const seedTwineItem: DispatchItem = {
+  product: PRODUCTS[5],
+  batchId: 'b11',
+  dispatchUom: 'meter',
+  dispatchQuantity: 12.5,
+  quantityDeducted: 12.5,
+  unitCost: 1.2,
+  lineTotal: 15,
+};
+
+export const SEED_DISPATCHES: Dispatch[] = [
+  {
+    id: 'd1',
+    customerReference: 'Sample Client',
+    items: [seedSackItem, seedTwineItem],
+    createdAt: today(),
+    status: 'completed',
+  },
+];
