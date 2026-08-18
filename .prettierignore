@@ -1,0 +1,12 @@
+node_modules
+dist
+www
+coverage
+.angular
+.idea
+.vscode
+.git
+.gitignore
+bun.lock
+package-lock.json
+yarn.lock
