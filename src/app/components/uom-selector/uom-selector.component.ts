@@ -30,8 +30,10 @@ export class UomSelectorComponent {
     return this.product().category === 'sacks' ? ['piece'] : ['meter', 'roll'];
   }
 
-  /** Writes the selected UOM back into the `uom` model signal. */
-  onChange(value: DispatchUom): void {
-    this.uom.set(value);
+  /** Writes the selected UOM back into the `uom` model signal, if valid. */
+  onChange(value: unknown): void {
+    if (value === 'piece' || value === 'roll' || value === 'meter') {
+      this.uom.set(value);
+    }
   }
 }

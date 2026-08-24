@@ -1,3 +1,37 @@
 <ion-app>
   <ion-router-outlet></ion-router-outlet>
+  <ion-tabs>
+    <ion-tab-bar slot="bottom">
+      <ion-tab-button
+        [routerLink]="['/products']"
+        routerDirection="root"
+        [selected]="activeTab() === 'products'"
+      >
+        <ion-icon name="basket"></ion-icon>
+        <ion-label>Products</ion-label>
+      </ion-tab-button>
+
+      <!-- Badge surfaces the pending queue count from anywhere in the app -->
+      <ion-tab-button
+        [routerLink]="['/dispatch']"
+        routerDirection="root"
+        [selected]="activeTab() === 'dispatch'"
+      >
+        <ion-icon name="swap-horizontal"></ion-icon>
+        <ion-label>Dispatch</ion-label>
+        @if (queueCount() > 0) {
+          <ion-badge color="primary">{{ queueCount() }}</ion-badge>
+        }
+      </ion-tab-button>
+
+      <ion-tab-button
+        [routerLink]="['/dispatch-history']"
+        routerDirection="root"
+        [selected]="activeTab() === 'history'"
+      >
+        <ion-icon name="receipt"></ion-icon>
+        <ion-label>History</ion-label>
+      </ion-tab-button>
+    </ion-tab-bar>
+  </ion-tabs>
 </ion-app>

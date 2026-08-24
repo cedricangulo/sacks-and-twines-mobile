@@ -1,2 +1,114 @@
-// For information on how to create your own theme, please refer to:
-// https://ionicframework.com/docs/theming/
+//
+// Theme — Sacks & Twines brand, mapped from the capstone `:root` tokens in
+// `app/globals.css` (oklch → hex). Royal blue primary on warm tan/taupe
+// neutrals, amber warning, red destructive.
+//
+// Every base color also sets contrast / shade / tint so Ionic controls
+// derive their text color and press states correctly.
+
+/** Dark mode is out of scope for Lab 1; light-only brand palette. */
+:root {
+  /* Primary — royal blue (actions, active tab, success per capstone). */
+  --ion-color-primary: #1447e6;
+  --ion-color-primary-rgb: 20, 71, 230;
+  --ion-color-primary-contrast: #eff6ff;
+  --ion-color-primary-contrast-rgb: 239, 246, 255;
+  --ion-color-primary-shade: #14369c;
+  --ion-color-primary-tint: #315df2;
+
+  /* Secondary — deep sidebar blue (accent bars). */
+  --ion-color-secondary: #14369c;
+  --ion-color-secondary-rgb: 20, 54, 156;
+  --ion-color-secondary-contrast: #eff6ff;
+  --ion-color-secondary-contrast-rgb: 239, 246, 255;
+  --ion-color-secondary-shade: #0d287a;
+  --ion-color-secondary-tint: #315df2;
+
+  /* Warning — amber (low-stock). Dark text keeps ~11:1 on the amber fill. */
+  --ion-color-warning: #f0b100;
+  --ion-color-warning-rgb: 240, 177, 0;
+  --ion-color-warning-contrast: #241a00;
+  --ion-color-warning-contrast-rgb: 36, 26, 0;
+  --ion-color-warning-shade: #d39c00;
+  --ion-color-warning-tint: #f2b91a;
+
+  /* Danger — red (insufficient stock, destructive swipe). */
+  --ion-color-danger: #e7000b;
+  --ion-color-danger-rgb: 231, 0, 11;
+  --ion-color-danger-contrast: #ffffff;
+  --ion-color-danger-contrast-rgb: 255, 255, 255;
+  --ion-color-danger-shade: #cb0009;
+  --ion-color-danger-tint: #ea1a23;
+
+  /* Success — the capstone maps success onto primary blue. */
+  --ion-color-success: #1447e6;
+  --ion-color-success-rgb: 20, 71, 230;
+  --ion-color-success-contrast: #eff6ff;
+  --ion-color-success-contrast-rgb: 239, 246, 255;
+  --ion-color-success-shade: #14369c;
+  --ion-color-success-tint: #315df2;
+
+  /* Light — warm surface/card tint. */
+  --ion-color-light: #f3f1f1;
+  --ion-color-light-rgb: 243, 241, 241;
+  --ion-color-light-contrast: #0c0a09;
+  --ion-color-light-contrast-rgb: 12, 10, 9;
+  --ion-color-light-shade: #d6d4d4;
+  --ion-color-light-tint: #f4f2f2;
+
+  /* Medium — taupe (captions, depleted chips). */
+  --ion-color-medium: #7c6d67;
+  --ion-color-medium-rgb: 124, 109, 103;
+  --ion-color-medium-contrast: #ffffff;
+  --ion-color-medium-contrast-rgb: 255, 255, 255;
+  --ion-color-medium-shade: #6d605b;
+  --ion-color-medium-tint: #897c76;
+
+  /* Dark — warm near-black (headings / body text). */
+  --ion-color-dark: #0c0a09;
+  --ion-color-dark-rgb: 12, 10, 9;
+  --ion-color-dark-contrast: #ffffff;
+  --ion-color-dark-contrast-rgb: 255, 255, 255;
+  --ion-color-dark-shade: #0a0908;
+  --ion-color-dark-tint: #242322;
+
+  /* Page surface + text (brand warm neutrals). */
+  --ion-background-color: #ffffff;
+  --ion-background-color-rgb: 255, 255, 255;
+  --ion-text-color: #0c0a09;
+  --ion-text-color-rgb: 12, 10, 9;
+  --ion-border-color: #e8e4e3;
+
+  /* Warm gray scale (interpolated background → text) for borders/disabled. */
+  --ion-color-step-50: #f3f3f3;
+  --ion-color-step-100: #e7e6e6;
+  --ion-color-step-150: #dbdada;
+  --ion-color-step-200: #cecece;
+  --ion-color-step-250: #c2c2c2;
+  --ion-color-step-300: #b6b6b5;
+  --ion-color-step-350: #aaa9a9;
+  --ion-color-step-400: #9e9d9d;
+  --ion-color-step-450: #929190;
+  --ion-color-step-500: #868584;
+  --ion-color-step-550: #797878;
+  --ion-color-step-600: #6d6c6b;
+  --ion-color-step-650: #61605f;
+  --ion-color-step-700: #555453;
+  --ion-color-step-750: #494747;
+  --ion-color-step-800: #3d3b3a;
+  --ion-color-step-850: #302f2e;
+  --ion-color-step-900: #242322;
+  --ion-color-step-950: #181615;
+}
+
+/*
+ * Legible mobile body copy (>=16px avoids iOS auto-zoom) and tabular figures
+ * for prices/counts so column figures never jitter.
+ */
+html {
+  font-size: 16px;
+}
+
+.ion-text-tabular {
+  font-variant-numeric: tabular-nums;
+}

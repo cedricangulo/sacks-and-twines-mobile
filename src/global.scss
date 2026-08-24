@@ -28,10 +28,11 @@
 /**
  * Ionic Dark Mode
  * -----------------------------------------------------
- * For more info, please see:
- * https://ionicframework.com/docs/theming/dark-mode
+ * Dark mode is out of scope for Lab 1 — the brand palette in
+ * `theme/variables.scss` is light-only, so the system-dark palette is
+ * intentionally disabled to keep the warm light theme consistent on all
+ * devices.
  */
-
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
-@import '@ionic/angular/css/palettes/dark.system.css';
+/* @import '@ionic/angular/css/palettes/dark.system.css'; */

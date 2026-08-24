@@ -11,8 +11,29 @@ import {
   provideIonicAngular,
 } from '@ionic/angular/standalone';
 
+import { addIcons } from 'ionicons';
+import {
+  basket,
+  fileTrayOutline,
+  receipt,
+  receiptOutline,
+  searchOutline,
+  swapHorizontal,
+  trash,
+} from 'ionicons/icons';
+
 import { routes } from './app/app.routes';
 import { AppComponent } from './app/app.component';
+
+addIcons({
+  basket,
+  fileTrayOutline,
+  receipt,
+  receiptOutline,
+  searchOutline,
+  swapHorizontal,
+  trash,
+});
 
 bootstrapApplication(AppComponent, {
   providers: [

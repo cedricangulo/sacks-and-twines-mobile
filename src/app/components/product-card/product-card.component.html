@@ -1,15 +1,20 @@
 <!-- Whole card navigates to the product detail page -->
 <ion-card [routerLink]="['/product', product().id]">
   <ion-card-header>
-    <!-- Interpolation of the product input signal -->
     <ion-card-title>{{ product().name }}</ion-card-title>
     <ion-card-subtitle
       >{{ product().skuCode }} · {{ product().baseUom }}</ion-card-subtitle
     >
   </ion-card-header>
   <ion-card-content>
-    <p>Category: {{ product().category }}</p>
-    <!-- Stops card navigation and bubbles the product up via (tap) -->
-    <ion-button fill="clear" (click)="emitTap($event)"> Select </ion-button>
+    <div class="stock-row">
+      <p class="ion-text-tabular">
+        {{ product().currentQuantity }} {{ product().baseUom }}
+      </p>
+      <!-- Warning badge when at/below the reorder threshold -->
+      @if (isLowStock()) {
+        <ion-badge color="warning">{{ lowStockLabel }}</ion-badge>
+      }
+    </div>
   </ion-card-content>
 </ion-card>

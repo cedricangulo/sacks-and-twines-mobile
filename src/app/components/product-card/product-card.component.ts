@@ -1,15 +1,21 @@
-import { Component, output, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import {
   IonCard,
   IonCardHeader,
   IonCardTitle,
   IonCardSubtitle,
   IonCardContent,
-  IonButton,
+  IonBadge,
 } from '@ionic/angular/standalone';
 import { RouterLink } from '@angular/router';
 import { Product } from '../../models/product.model';
+import { ProductService } from '../../services/product.service';
 
+/**
+ * Catalog card for a single {@link Product}. Renders the product, its on-hand
+ * quantity, and a warning badge when the stock is at/below the reorder
+ * threshold. The whole card links to the product detail page.
+ */
 @Component({
   selector: 'app-product-card',
   standalone: true,
@@ -19,26 +25,23 @@ import { Product } from '../../models/product.model';
     IonCardTitle,
     IonCardSubtitle,
     IonCardContent,
-    IonButton,
+    IonBadge,
     RouterLink,
   ],
   templateUrl: 'product-card.component.html',
   styleUrls: ['product-card.component.scss'],
 })
-/**
- * Catalog card for a single {@link Product}. Renders the product and links to
- * its detail page; the "Select" button bubbles the tapped product up via
- * {@link tap} for parent pickers (catalog + dispatch).
- */
 export class ProductCardComponent {
+  private readonly productService = inject(ProductService);
+
+  /** Indicator shown when a product is at/below its reorder threshold. */
+  readonly lowStockLabel = 'LOW STOCK';
+
   /** The product to render. */
   readonly product = input.required<Product>();
-  /** Emits the tapped product when "Select" is pressed. */
-  readonly tap = output<Product>();
 
-  /** Stops the card's routerLink navigation and re-emits the product upward. */
-  emitTap(event: Event): void {
-    event.stopPropagation();
-    this.tap.emit(this.product());
-  }
+  /** True when on-hand is at/below the product's low-stock threshold. */
+  readonly isLowStock = computed(() =>
+    this.productService.isLowStock(this.product()),
+  );
 }
