@@ -1,0 +1,118 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>New Dispatch</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding" [fullscreen]="true">
+  <!-- Product picker -->
+  <ion-item>
+    <ion-label>Product</ion-label>
+    <ion-select [(ngModel)]="selectedProductId" placeholder="Select product">
+      @for (product of catalog(); track product.id) {
+      <ion-select-option [value]="product.id"
+        >{{ product.name }}</ion-select-option
+      >
+      }
+    </ion-select>
+  </ion-item>
+
+  <!-- UOM selector (per product category) -->
+  @if (selectedProduct(); as product) {
+  <ion-item lines="none">
+    <ion-label>Dispatch UOM</ion-label>
+    <app-uom-selector [product]="product" [(uom)]="uom"></app-uom-selector>
+  </ion-item>
+
+  <!-- Quantity -->
+  <ion-item lines="none">
+    <ion-input
+      label="Quantity"
+      fill="outline"
+      type="number"
+      inputmode="decimal"
+      [min]="1"
+      [step]="step()"
+      [value]="qty()"
+      (ionInput)="onQtyInput($event)"
+      (ionBlur)="normalizeQty()"
+    ></ion-input>
+  </ion-item>
+  }
+
+  <ion-button
+    expand="block"
+    fill="outline"
+    (click)="addToQueue()"
+    [disabled]="!selectedProduct()"
+    class="ion-margin-vertical"
+  >
+    Add to queue
+  </ion-button>
+
+  <!-- Queue -->
+  <div
+    style="display: flex; align-items: center; justify-content: space-between"
+  >
+    <ion-label class="ion-margin-top">Queue</ion-label>
+    <ion-chip class="ion-text-tabular">
+      {{ queueCount() }} item(s) · ₱{{ queueTotal().toFixed(2) }}
+    </ion-chip>
+  </div>
+
+  @if (queue().length === 0) {
+  <!-- Empty state with a path forward -->
+  <div class="empty-state ion-padding">
+    <ion-icon name="file-tray-outline"></ion-icon>
+    <h2>Your queue is empty</h2>
+    <p>Pick a product above, or browse the catalog.</p>
+    <ion-button fill="clear" routerLink="/products">Browse products</ion-button>
+  </div>
+  } @else {
+  <!-- Lines are drag-reorderable; each has an explicit remove button -->
+  <ion-list>
+    <ion-reorder-group (ionItemReorder)="onReorder($event)" [disabled]="false">
+      @for (item of queue(); track item.id; let i = $index) {
+      <ion-item>
+        <ion-reorder slot="start" class="queue-handle"></ion-reorder>
+        <ion-label>
+          <strong>{{ item.product.name }}</strong>
+          <p class="ion-text-tabular">
+            {{ item.dispatchQuantity }} {{ item.dispatchUom }} · ₱{{
+            item.lineTotal.toFixed(2) }}
+          </p>
+        </ion-label>
+        <ion-button
+          slot="end"
+          fill="clear"
+          color="danger"
+          (click)="removeFromQueue(i)"
+          aria-label="Remove {{ item.product.name }} from queue"
+        >
+          <ion-icon slot="icon-only" name="trash"></ion-icon>
+        </ion-button>
+      </ion-item>
+      }
+    </ion-reorder-group>
+  </ion-list>
+  }
+</ion-content>
+
+<ion-footer class="ion-padding">
+  <ion-toolbar>
+    <!-- Optional customer reference -->
+    <ion-input
+      fill="outline"
+      labelPlacement="stacked"
+      [(ngModel)]="customerRef"
+      placeholder="Customer / plate (optional)"
+    ></ion-input>
+    <ion-button
+      expand="block"
+      (click)="submitDispatch()"
+      [disabled]="queue().length === 0"
+    >
+      Submit Dispatch
+    </ion-button>
+  </ion-toolbar>
+</ion-footer>

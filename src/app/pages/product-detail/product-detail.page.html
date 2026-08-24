@@ -1,0 +1,55 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/products"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Product</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding" [fullscreen]="true">
+  @if (product(); as product) {
+  <!-- Summary card -->
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>{{ product.name }}</ion-card-title>
+      <ion-card-subtitle
+        >{{ product.skuCode }} · {{ categoryLabel(product.category)
+        }}</ion-card-subtitle
+      >
+    </ion-card-header>
+    <ion-card-content>
+      <div class="stock-row">
+        <p class="ion-text-tabular">
+          {{ product.currentQuantity }} {{ product.baseUom }}
+        </p>
+        @if (isLowStock()) {
+        <ion-badge color="warning">LOW STOCK</ion-badge>
+        }
+      </div>
+
+      <p class="ion-text-tabular ion-margin-top">
+        Value: ₱{{ product.totalAssetValue.toFixed(2) }}
+      </p>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- FIFO batches -->
+  <ion-label class="ion-padding-top">Batches (oldest → newest)</ion-label>
+  <app-batch-list [batches]="batches()"></app-batch-list>
+
+  <ion-button expand="block" [routerLink]="'/dispatch'" class="ion-margin-top">
+    Dispatch this product
+  </ion-button>
+  } @else {
+  <!-- Empty state for an unknown id -->
+  <div class="empty-state ion-padding-top">
+    <ion-icon name="search-outline"></ion-icon>
+    <h2>Product not found</h2>
+    <p>It may have been removed from the catalog.</p>
+    <ion-button fill="clear" routerLink="/products"
+      >Back to products</ion-button
+    >
+  </div>
+  }
+</ion-content>
