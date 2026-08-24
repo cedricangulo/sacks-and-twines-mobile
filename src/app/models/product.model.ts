@@ -18,5 +18,4 @@ export interface Product {
   /** `0` disables the low-stock alert. */
   lowStockThreshold: number;
   status: ProductStatus;
-  imagePath?: string;
 }
