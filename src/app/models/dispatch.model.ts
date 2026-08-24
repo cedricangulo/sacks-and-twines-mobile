@@ -7,6 +7,8 @@ import { Product } from './product.model';
  * modeled separately as in the real schema (equal here, fractional meter allowed).
  */
 export interface DispatchItem {
+  /** Unique line id, used as the `@for` track key (queue + history). */
+  id: string;
   /** Pre-rich display data (prototype keeps the product object inline). */
   product: Product;
   /** The batch actually consumed for this line. */

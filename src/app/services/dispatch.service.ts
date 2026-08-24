@@ -11,6 +11,12 @@ export class InsufficientStockError extends Error {
   }
 }
 
+/** A line just removed from the queue, kept for undo. */
+export interface RemovedQueueItem {
+  item: DispatchItem;
+  index: number;
+}
+
 /**
  * Service layer that orchestrates dispatch business rules on top of
  * {@link ProductService}. Owns the reactive queue + history (signals), and
@@ -41,9 +47,37 @@ export class DispatchService {
     this.queue.update((prev) => [...prev, item]);
   }
 
-  /** Removes the queued line at `index`. */
-  removeFromQueue(index: number): void {
+  /**
+   * Removes the queued line at `index`. Returns the removed item and its
+   * position so the caller can offer an undo, or `null` when the index is
+   * already gone (e.g. a stale row after a reorder).
+   */
+  removeFromQueue(index: number): RemovedQueueItem | null {
+    const item = this.queue()[index];
+    if (!item) {
+      return null;
+    }
     this.queue.update((prev) => prev.filter((_, i) => i !== index));
+    return { item, index };
+  }
+
+  /** Re-inserts a removed line at `index` (undo support), clamping to the end. */
+  restoreQueueItem(item: DispatchItem, index: number): void {
+    this.queue.update((prev) => {
+      const next = [...prev];
+      next.splice(Math.min(Math.max(index, 0), next.length), 0, item);
+      return next;
+    });
+  }
+
+  /** Moves one queued line from index `from` to index `to` (`ion-reorder`). */
+  reorderQueue(from: number, to: number): void {
+    this.queue.update((prev) => {
+      const next = [...prev];
+      const [moved] = next.splice(from, 1);
+      next.splice(to, 0, moved);
+      return next;
+    });
   }
 
   /** Empties the queue. */
@@ -105,8 +139,9 @@ export class DispatchService {
    * Plans FIFO fulfillment for every queued line on a *simulated* stock map,
    * so all lines validate before any real deduction (atomic rejection). Returns
    * the concrete {@link DispatchItem} lines — one per consumed batch, oldest
-   * first — each carrying a `unitCost` snapshotted from that batch.
-   * Throws {@link InsufficientStockError} if any line remains unmet.
+   * first — each carrying a `unitCost` snapshotted from that batch and a
+   * unique `id` (a product may consume the same batch twice, so ids can't be
+   * batch ids). Throws {@link InsufficientStockError} if any line remains unmet.
    */
   private fulfill(queueLines: DispatchItem[]): DispatchItem[] {
     const remaining = new Map<string, number>();
@@ -135,6 +170,7 @@ export class DispatchService {
           continue;
         }
         result.push({
+          id: `f${result.length}-${batch.id}`,
           product,
           batchId: batch.id,
           dispatchUom: line.dispatchUom,

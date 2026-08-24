@@ -270,6 +270,7 @@ export const BATCHES: Batch[] = [
 ];
 
 const seedSackItem: DispatchItem = {
+  id: 'seed-sack-item',
   product: PRODUCTS[0],
   batchId: 'b1',
   dispatchUom: 'piece',
@@ -280,6 +281,7 @@ const seedSackItem: DispatchItem = {
 };
 
 const seedTwineItem: DispatchItem = {
+  id: 'seed-twine-item',
   product: PRODUCTS[5],
   batchId: 'b11',
   dispatchUom: 'meter',

@@ -1,7 +1,10 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { Product } from '../models/product.model';
 import { Batch } from '../models/batch.model';
 import { BATCHES, PRODUCTS } from '../models/sample-data';
+
+/** Catalog category filter values for the products landing page. */
+export type CategoryFilter = 'all' | 'sacks' | 'twines';
 
 /**
  * Data-access layer for the catalog & batches (the in-app "backend").
@@ -14,6 +17,15 @@ import { BATCHES, PRODUCTS } from '../models/sample-data';
 export class ProductService {
   private readonly _products: Product[] = PRODUCTS;
   private readonly _batches: Batch[] = BATCHES;
+
+  /**
+   * Active category filter. Lives here (not on the page) so the filter state
+   * survives route navigation back to the catalog.
+   */
+  readonly categoryFilter = signal<CategoryFilter>('all');
+
+  /** Live search query. Kept here so it survives route navigation too. */
+  readonly searchQuery = signal('');
 
   /** Returns the full product catalog. */
   products(): Product[] {

@@ -12,7 +12,9 @@ describe('DispatchService', () => {
   const b12 = (): Batch => BATCHES.find((b) => b.id === 'b12') as Batch;
   const p6 = (): Product => PRODUCTS.find((p) => p.id === 'p6') as Product;
 
+  let seq = 0;
   const queueItem = (product: Product, quantity: number): DispatchItem => ({
+    id: `spec-q${seq++}`,
     product,
     batchId: '',
     dispatchUom: 'meter',
